@@ -162,7 +162,18 @@ class Detector:
 
         return processed_boxes
 
-    def censor(self, img_path, out_path=None, visualize=False, parts_to_blur=[]):
+    def censor(self, img_path, out_path=None, visualize=False, parts_to_blur=[], value=10):
+        #def pixelat-or
+        def pixelate(image, pixvalue):
+            # Get input size
+            height, width, _ = image.shape
+            # Desired "pixelated" size
+            h, w = (pixvalue, pixvalue)
+            # Resize image to "pixelated" size
+            temp = cv2.resize(image, (w, h), interpolation=cv2.INTER_LINEAR)
+            # Initialize output image
+            return cv2.resize(temp, (width, height), interpolation=cv2.INTER_NEAREST)
+        
         if not out_path and not visualize:
             print(
                 "No out_path passed and visualize is set to false. There is no point in running this function then."
@@ -179,6 +190,12 @@ class Detector:
 
         for box in boxes:
             part = image[box[1] : box[3], box[0] : box[2]]
+            
+            #pixelt-or
+            roi = image[box[1]:box[3], box[0]:box[2]]
+            # applying a gaussian blur over this new rectangle area
+            roi = pixelate(roi, value)
+            image[box[1]:box[1]+roi.shape[0], box[0]:box[0]+roi.shape[1]] = roi
             image = cv2.rectangle(
                 image, (box[0], box[1]), (box[2], box[3]), (0, 0, 0), cv2.FILLED
             )
