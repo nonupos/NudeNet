@@ -196,9 +196,6 @@ class Detector:
             # applying a gaussian blur over this new rectangle area
             roi = pixelate(roi, value)
             image[box[1]:box[1]+roi.shape[0], box[0]:box[0]+roi.shape[1]] = roi
-            image = cv2.rectangle(
-                image, (box[0], box[1]), (box[2], box[3]), (0, 0, 0), cv2.FILLED
-            )
 
         if visualize:
             cv2.imshow("Blurred image", image)
