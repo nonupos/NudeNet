@@ -162,18 +162,23 @@ class Detector:
 
         return processed_boxes
 
-    def censor(self, img_path, out_path=None, visualize=False, parts_to_blur=[], value=10):
-        #def pixelat-or
-        def pixelate(image, pixvalue):
+    
+
+
+
+    def censor(self, img_path, out_path=None, visualize=False, parts_to_blur=[]):
+        #jayu
+        def pixelate(image):
             # Get input size
             height, width, _ = image.shape
             # Desired "pixelated" size
-            h, w = (pixvalue, pixvalue)
+            h, w = (10, 10)
             # Resize image to "pixelated" size
             temp = cv2.resize(image, (w, h), interpolation=cv2.INTER_LINEAR)
             # Initialize output image
             return cv2.resize(temp, (width, height), interpolation=cv2.INTER_NEAREST)
-        
+        #jayu
+
         if not out_path and not visualize:
             print(
                 "No out_path passed and visualize is set to false. There is no point in running this function then."
@@ -190,12 +195,16 @@ class Detector:
 
         for box in boxes:
             part = image[box[1] : box[3], box[0] : box[2]]
-            
-            #pixelt-or
+
             roi = image[box[1]:box[3], box[0]:box[2]]
             # applying a gaussian blur over this new rectangle area
-            roi = pixelate(roi, value)
+            roi = pixelate(roi)
+            #roi = cv2.GaussianBlur(roi, (23, 23), 30)
             image[box[1]:box[1]+roi.shape[0], box[0]:box[0]+roi.shape[1]] = roi
+
+            #image = cv2.rectangle(
+            #    image, (box[0], box[1]), (box[2], box[3]), (0, 0, 0), cv2.FILLED
+            #)
 
         if visualize:
             cv2.imshow("Blurred image", image)
@@ -203,6 +212,48 @@ class Detector:
 
         if out_path:
             cv2.imwrite(out_path, image)
+
+
+    def censor_vid(self, img_path, out_path=None, visualize=False, parts_to_blur=[]):
+        #jayu
+        def pixelate(image):
+            # Get input size
+            height, width, _ = image.shape
+            # Desired "pixelated" size
+            h, w = (10, 10)
+            # Resize image to "pixelated" size
+            temp = cv2.resize(image, (w, h), interpolation=cv2.INTER_LINEAR)
+            # Initialize output image
+            return cv2.resize(temp, (width, height), interpolation=cv2.INTER_NEAREST)
+        #jayu
+
+
+        image = img_path
+        boxes = self.detect(img_path)
+
+        if parts_to_blur:
+            boxes = [i["box"] for i in boxes if i["label"] in parts_to_blur]
+        else:
+            boxes = [i["box"] for i in boxes]
+
+        for box in boxes:
+            part = image[box[1] : box[3], box[0] : box[2]]
+
+            roi = image[box[1]:box[3], box[0]:box[2]]
+            # applying a gaussian blur over this new rectangle area
+            roi = pixelate(roi)
+            #roi = cv2.GaussianBlur(roi, (23, 23), 30)
+            image[box[1]:box[1]+roi.shape[0], box[0]:box[0]+roi.shape[1]] = roi
+
+            #image = cv2.rectangle(
+            #    image, (box[0], box[1]), (box[2], box[3]), (0, 0, 0), cv2.FILLED
+            #)
+
+        if visualize:
+            cv2.imshow("Blurred image", image)
+            cv2.waitKey(0)
+
+        return image
 
 
 if __name__ == "__main__":
