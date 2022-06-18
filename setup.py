@@ -26,7 +26,7 @@ REQUIRED = [
     'opencv-python-headless==4.5.1.48',
     'pydload',
     'scikit-image',
-    'onnxruntime-gpu'
+    'onnxruntime-gpu==1.7'
 ]
 
 # What packages are optional?
